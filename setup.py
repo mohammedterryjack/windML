@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
 
-VERSION = '0.0.1'
+VERSION = '0.1.3'
 DESCRIPTION = 'WindML'
-LONG_DESCRIPTION = 'Fast and lightweight ML models. one-shot learning extreme learning machine and model-free matrix factorisation classifiers. Few shot learning using Direct Feedback Alignment or Backpropagation using only numpy'
+LONG_DESCRIPTION = 'Refreshingly Lightweight Machine Learning (using only numpy). models include conditional-character-RNN, Transformer and a Direct Feedback Alignment NN and other one-shot models like extreme learning machines or matrix factorisation retrieval-based classifiers (for a model-free alternative)'
 
 setup(
     name="windML",
@@ -14,7 +14,7 @@ setup(
     long_description=LONG_DESCRIPTION,
     packages=find_packages(),
     install_requires=['numpy'],
-    keywords=['python', 'extreme learning machine', 'direct feedback alignment', 'matrix factorisation', 'ml', 'machine learning'],
+    keywords=['python', 'extreme learning machine', 'direct feedback alignment', 'matrix factorisation', 'ml', 'machine learning', 'rnn', 'transformer', 'numpy', 'lite'],
     classifiers=[
         "Development Status :: 1 - Planning",
         "Intended Audience :: Developers",
