@@ -7,6 +7,6 @@ def one_hot_encode_batch(targets:List[str],labels:List[str]) -> List[ndarray]:
     return list(map(lambda target: one_hot_encode(labels.index(target),vector_size),targets))
     
 def one_hot_encode(index:int, vector_size:int) -> ndarray:
-    vector = zeros(vector_size)
+    vector = zeros(vector_size,dtype=int)
     vector[index] = 1
     return vector
