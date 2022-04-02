@@ -1,7 +1,13 @@
-def get_pos_encoding(n_pos,d_model):
-    angles = np.fromfunction(lambda i,j:i/10000**(2*j/d_model),(n_pos,int(d_model/2)))
-    pos_enc = np.ones((n_pos,d_model))
-    pos_enc[:,::2] = np.sin(angles)
-    pos_enc[:,1::2] = np.cos(angles)
-    return pos_enc
-    #https://github.com/SwikarGautam/Transformer/blob/master/transformer.ipynb
+from enum import Enum 
+
+class ModelSettings(Enum):
+    SEQUENCE_LENGTH = 15
+    EMBEDDING_DIMENSION = 128
+    VOCABULARY_SIZE = 128
+    N_HEADS = 8
+    N_DECODERS = 8
+    SCALING_FACTOR = .01
+    DROPOUT_RATE = .2
+    AVOID_DIVISION_BY_ZERO = 1e-5
+
+assert ModelSettings.EMBEDDING_DIMENSION.value % ModelSettings.N_HEADS.value == 0
