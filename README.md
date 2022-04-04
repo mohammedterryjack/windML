@@ -5,6 +5,7 @@
 Refreshingly Lightweight Machine Learning (using only numpy). models include conditional-character-RNN, Transformer and a Direct Feedback Alignment NN and other one-shot models like extreme learning machines or matrix factorisation retrieval-based classifiers (for a model-free alternative). 
 
 ## ChangeLog
+- 0.3.0 added recurrent ELM and Autoencoder ELM
 - 0.2.3 allow epochs to be specified by user in rnn
 - 0.2.2 bug fix. also removing fixed bos, eos, etc tokens and allowing to be set dynamically
 - 0.2.1 adding bos, eos, pad token ids and updating epochs

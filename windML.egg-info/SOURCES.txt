@@ -30,7 +30,10 @@ windML/oneshot/__init__.py
 windML/oneshot/modelfree/__init__.py
 windML/oneshot/modelfree/matrix_factorisation.py
 windML/oneshot/models/__init__.py
+windML/oneshot/models/autoencoder_elm.py
 windML/oneshot/models/extreme_learning_machine.py
+windML/oneshot/models/recurrent_elm.py
+windML/oneshot/models/utils.py
 windML/utils/__init__.py
 windML/utils/classifier.py
 windML/utils/label_encoding.py
