@@ -15,7 +15,7 @@ class ELMClassifier:
         seed(0)
         self.random_projection = uniform(
             low=-.1, high=.1, 
-            size =(input_dimension, hidden_dimension)
+            size=(input_dimension, hidden_dimension)
         )
         if load_path is None:
             self.LABELS = list()
@@ -28,8 +28,8 @@ class ELMClassifier:
         self.LABELS = sorted(set(labels))
         label_vectors = one_hot_encode_batch(labels,self.LABELS)
         hidden = self._hidden_layer(inputs)
-        self.weights = self._learn_dense_weights(hidden, label_vectors)
-
+        self.weights = self._learn_weights(hidden, label_vectors)
+    
     def save(self, name:str) -> str:
         path = f"{Path.cwd()}/{name}"
         Path(path).mkdir(parents=True, exist_ok=True)
@@ -49,7 +49,8 @@ class ELMClassifier:
     def _output_layer(self, hidden: ndarray) -> ndarray: 
         return hidden @ self.weights
     
-    def _learn_dense_weights(self, hidden:ndarray, label_vectors:List[ndarray]) -> ndarray:
+    @staticmethod
+    def _learn_weights(hidden:ndarray, label_vectors:List[ndarray]) -> ndarray:
         return pinv(hidden) @ label_vectors
 
     @staticmethod

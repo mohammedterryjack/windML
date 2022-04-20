@@ -1,34 +1,27 @@
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List, Generator
 
-from numpy import zeros, ndarray, eye, zeros, savetxt, loadtxt
+from numpy import zeros, ndarray, eye, zeros, savetxt, loadtxt, exp, sqrt, array, argmax
 from numpy.random import random, seed
 from numpy.linalg import pinv, inv
 from numpy.linalg.linalg import LinAlgError
 
-from windML.oneshot.models.utils import ModelSettings, sigmoid, normalisation_layer
-from windML.oneshot.models.autoencoder_elm import AutoencoderELM
+
+from windML.oneshot.models.utils import ModelSettings 
 
 class RecurrentELM:
     def __init__(self, input_dimension:ndarray, output_dimension:ndarray, load_path:Optional[str]=None) -> None:
         seed(0)
         self.bias = random((1, ModelSettings.HIDDEN_DIMENSION.value)) * 2 - 1
 
-        self.input_weights  = random((ModelSettings.HIDDEN_DIMENSION.value, input_dimension)) *2 -1
-        self.hidden_weights = random((ModelSettings.HIDDEN_DIMENSION.value, ModelSettings.HIDDEN_DIMENSION.value))
+        self.input_weights  = random((ModelSettings.HIDDEN_DIMENSION.value, input_dimension)) * 2 - 1
+        self.hidden_weights = random((ModelSettings.HIDDEN_DIMENSION.value, ModelSettings.HIDDEN_DIMENSION.value)) * 2 - 1
         if load_path is None:
             self.output_weights = zeros((ModelSettings.HIDDEN_DIMENSION.value, output_dimension))
         else:
             self.output_weights = loadtxt(f"{load_path}/output_weights.txt")
 
-        self.hidden_state = random((1, ModelSettings.HIDDEN_DIMENSION.value)) * 2 -1
         self.M = inv(ModelSettings.WEIGHT_FACTOR.value * eye(ModelSettings.HIDDEN_DIMENSION.value))
-
-        self.input_autoencoder = AutoencoderELM(input_dimension, input_dimension)
-        self.hidden_autoencoder = AutoencoderELM(ModelSettings.HIDDEN_DIMENSION.value, ModelSettings.HIDDEN_DIMENSION.value)
-
-        self.activation_function = sigmoid
-        self.normalisation = normalisation_layer
 
     def save(self, name:str) -> None:
         path = f"{Path.cwd()}/{name}"
@@ -44,32 +37,33 @@ class RecurrentELM:
         except LinAlgError:
             pass
 
-    def forward(self, inputs:ndarray) -> ndarray:
-        hidden_state = self._hidden_layer(inputs)
-        return self._output_layer(hidden_state)
+    def forward(self, inputs:ndarray, hidden_state:Optional[ndarray]=None) -> ndarray:
+        hidden_state = self._hidden_layer(inputs, hidden_state)
+        return self._output_layer(hidden_state), hidden_state
+
+    def generate(self, token_id_vectoriser:callable, prompt_token_ids:Optional[List[int]]=None, generation_length:int=ModelSettings.SEQUENCE_LENGTH.value) -> Generator[int,None,None]:
+        if prompt_token_ids is None:
+            prompt_token_ids = list()
+        for _ in range(generation_length):
+            input_vector = token_id_vectoriser(prompt_token_ids)
+            output_vector,_ = self.forward(array([input_vector]))
+            predicted_index = self.greedy_decode(output_vector)
+            prompt_token_ids.append(predicted_index)
+            yield predicted_index
 
     def _output_layer(self, hidden_state:ndarray) -> ndarray:
         return hidden_state @ self.output_weights
 
-    def _hidden_layer(self, inputs:ndarray) -> ndarray:
-        self.input_weights = self._input_weights_via_autoencoder(inputs)
-        self.hidden_weights = self._hidden_weights_via_autoencoder(self.hidden_state)
+    def _hidden_layer(self, inputs:ndarray, hidden_state:Optional[ndarray]=None) -> ndarray:
         logits = self.linear_recurrent(
             inputs=inputs,
-            hidden=self.hidden_state,
+            hidden=zeros((1, ModelSettings.HIDDEN_DIMENSION.value)) if hidden_state is None else hidden_state,
             input_weights=self.input_weights,
             hidden_weights=self.hidden_weights,
             bias= self.bias
         )
-        normalised_logits = self.normalisation(logits)
-        self.hidden_state = self.activation_function(normalised_logits)
-        return self.hidden_state
-
-    def _input_weights_via_autoencoder(self, inputs:ndarray) -> ndarray:
-        return self._weights_via_autoencoder(inputs, self.input_autoencoder)
-
-    def _hidden_weights_via_autoencoder(self, inputs:ndarray) -> ndarray:
-        return self._weights_via_autoencoder(inputs, self.hidden_autoencoder)
+        normalised_logits = self.normalisation_layer(logits)
+        return self.sigmoid(normalised_logits)
 
     def _fit_M(self, hidden_state:ndarray, batch_size:int) -> None:
         projected_hidden = hidden_state @ self.M
@@ -92,6 +86,15 @@ class RecurrentELM:
         return projected_inputs + projected_hidden + bias
     
     @staticmethod
-    def _weights_via_autoencoder(inputs:ndarray, autoencoder:AutoencoderELM) -> ndarray:
-        autoencoder.fit(inputs,inputs)
-        return autoencoder.output_weights
+    def sigmoid(inputs:ndarray) -> ndarray:
+        return 1 / ( 1 + exp(-inputs))
+
+    @staticmethod
+    def normalisation_layer(inputs:ndarray) -> ndarray:
+        inputs_variance = inputs-inputs.mean()
+        inputs_variance_positive = sqrt(inputs.var() + ModelSettings.NORMALISATION_FACTOR.value)
+        return inputs_variance/inputs_variance_positive
+
+    @staticmethod
+    def greedy_decode(logits:ndarray) -> int:
+        return argmax(logits)
