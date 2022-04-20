@@ -5,6 +5,14 @@
 Refreshingly Lightweight Machine Learning (using only numpy). models include conditional-character-RNN, Transformer and a Direct Feedback Alignment NN and other one-shot models like extreme learning machines or matrix factorisation retrieval-based classifiers (for a model-free alternative). 
 
 ## ChangeLog
+- 0.3.8 generate function added for RecurrentELM
+- 0.3.7 bug fix: RecurrentELM hidden_state initialised in fit
+- 0.3.6 ELM sparse weights removed
+- 0.3.5 ELM binarisation threshold reduced to improve accuracy
+- 0.3.4 ELM binarisation threshold increased slightly to improve efficiency and generalisability
+- 0.3.3 ELM stores sparse weights now for generalisability and memory efficiency
+- 0.3.2 allow hidden state to be reset
+- 0.3.1 kepts recurrent ELM weights random only
 - 0.3.0 added recurrent ELM and Autoencoder ELM
 - 0.2.3 allow epochs to be specified by user in rnn
 - 0.2.2 bug fix. also removing fixed bos, eos, etc tokens and allowing to be set dynamically

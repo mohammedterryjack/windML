@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-VERSION = '0.3.0'
+VERSION = '0.3.8'
 DESCRIPTION = 'WindML'
 LONG_DESCRIPTION = 'Refreshingly Lightweight Machine Learning (using only numpy). models include conditional-character-RNN, Transformer and a Direct Feedback Alignment NN and other one-shot models like extreme learning machines or matrix factorisation retrieval-based classifiers (for a model-free alternative)'
 
